@@ -35,8 +35,18 @@ pub trait RecordBatchReader: Iterator<Item = Result<RecordBatch, ArrowError>> {
     fn schema(&self) -> SchemaRef;
 }
 
+pub trait AsyncRecordBatchReader: futures::Stream<Item = Result<RecordBatch, ArrowError>> {
+    fn schema<'a>(&'a self) -> std::pin::Pin<Box<dyn Future<Output = SchemaRef> + Send + 'a>>;
+}
+
 impl<R: RecordBatchReader + ?Sized> RecordBatchReader for Box<R> {
     fn schema(&self) -> SchemaRef {
+        self.as_ref().schema()
+    }
+}
+
+impl<R: AsyncRecordBatchReader + std::marker::Unpin + ?Sized> AsyncRecordBatchReader for Box<R> {
+    fn schema<'a>(&'a self) -> std::pin::Pin<Box<dyn Future<Output = SchemaRef> + Send + 'a>> {
         self.as_ref().schema()
     }
 }
