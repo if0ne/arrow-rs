@@ -252,6 +252,8 @@ mod delta;
 #[cfg(feature = "ffi")]
 pub mod ffi;
 #[cfg(feature = "ffi")]
+pub mod ffi_async_stream;
+#[cfg(feature = "ffi")]
 pub mod ffi_stream;
 pub mod iterator;
 pub mod run_iterator;
